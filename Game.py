@@ -1,45 +1,50 @@
 class Game:
     def __init__(self):
         self.state = "start"
-        self.end = False
-        self.reward = 0
+        self.actions = {
+            "start": ["explore", "leave"],
+            "forest": ["search", "rest"],
+            "cave": ["fight", "flee"],
+            "invalid": []
+        }
+        self.rewards = {
+            "explore": 10,
+            "leave": -5,
+            "search": 20,
+            "rest": 5,
+            "fight": 30,
+            "flee": -10
+        }
+        self.end_states = ["leave", "flee"]
 
     def start(self):
-        self.state = "You find yourself at the entrance of a mysterious dungeon."
-        return "Objective: Explore the dungeon, find the treasure, and exit safely.\n" + self.state
+        return "Welcome to the adventure! You are at the entrance of a dark forest. Do you want to 'explore' it or 'leave'?"
 
     def step(self, action):
-        if self.state.startswith("You find yourself"):
-            return self.enter_dungeon(action)
-        elif self.state.startswith("You are in a room"):
-            return self.choose_path(action)
-        elif self.state.startswith("Congratulations"):
-            self.end = True
-            return self.state, self.reward, self.end
+        if self.state in self.end_states:
+            return "Game over", "You lost", True
+        elif action not in self.actions.get(self.state, self.actions["invalid"]):
+            self.state = "invalid"
+            valid_actions = "', '".join(self.actions.get(self.state, []))
+            return f"Invalid action choose '{valid_actions}'", "", False
         else:
-            return "Invalid state.", 0, self.end
-
-    def enter_dungeon(self, action):
-        if action.lower() == "enter":
-            self.state = "You are in a room with two doors. One leads left, the other right."
-            return self.state, self.reward, self.end
-        else:
-            return 'Please choose a valid action: "Enter"', 0, self.end
-
-    def choose_path(self, action):
-        if action.lower() == "left":
-            self.state = "You find a room filled with gold! You take some and proceed."
-            self.reward += 100
-            self.state += " Another door appears, leading outside."
-            return self.state, self.reward, self.end
-        elif action.lower() == "right":
-            self.state = "A trap! You narrowly escape with minor injuries."
-            self.reward -= 50
-            return self.state, self.reward, self.end
-        elif action.lower() == "proceed":
-            self.state = "Congratulations! You've made it out alive with your treasure."
-            self.end = True
-            return self.state, self.reward, self.end
-        else:
-            valid_actions = '"Left", "Right", or "Proceed"' if "Another door appears" in self.state else '"Left" or "Right"'
-            return f'Please choose a valid action: {valid_actions}', 0, self.end
+            reward = self.rewards.get(action, 0)
+            reward_msg = f"You get {reward} points"
+            if action == "explore":
+                self.state = "forest"
+                next_state = "You are in a mystical forest. Do you want to 'search' for treasure or 'rest'?"
+            elif action == "search":
+                self.state = "cave"
+                next_state = "You found a cave. Will you 'fight' the dragon or 'flee'?"
+            elif action == "rest":
+                return "Game over", "You won", True
+            elif action == "fight":
+                return "Game over", "You won", True
+            elif action == "flee":
+                return "Game over", "You lost", True
+            elif action == "leave":
+                return "Game over", "You lost", True
+            else:
+                next_state = "Invalid state"
+                reward_msg = ""
+            return next_state, reward_msg, False

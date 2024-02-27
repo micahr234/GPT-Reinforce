@@ -12,7 +12,8 @@ if __name__ == '__main__':
     llm.add_context(context)
     print(Fore.YELLOW + context + Style.RESET_ALL)
 
-    while True:
+    quit_playing = False
+    while not quit_playing:
         game = Game.Game()
 
         state = game.start()
@@ -20,14 +21,25 @@ if __name__ == '__main__':
         print(Fore.GREEN + state + Style.RESET_ALL)
 
         while True:
-            input()
+            supervisor_input = input("Press any key to continue or 'q' to quit")
+            if supervisor_input == 'q':
+                quit_playing = True
+                break
 
             llm_output = llm.reply()
             print(Fore.BLUE + llm_output + Style.RESET_ALL)
 
             state, reward, end = game.step(llm_output)
-            llm.add(state + str(reward))
-            print(Fore.GREEN + state + str(reward) + Style.RESET_ALL)
-
+            llm.add(reward)
+            llm.add(state)
+            print(Fore.GREEN + reward + Style.RESET_ALL)
+            print(Fore.GREEN + state + Style.RESET_ALL)
             if end:
                 break
+
+    context = "Now that you have experience playing. Summarize how to get the highest reward."
+    llm.add_context(context)
+    print(Fore.YELLOW + context + Style.RESET_ALL)
+
+    llm_output = llm.reply()
+    print(Fore.BLUE + llm_output + Style.RESET_ALL)
