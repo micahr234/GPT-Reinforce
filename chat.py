@@ -1,8 +1,9 @@
 import LLM
 from colorama import Fore, Back, Style
+import os
 
 if __name__ == '__main__':
-    llm = LLM.LLM(api_key="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")
+    llm = LLM.LLM(api_key=os.getenv("OPENAI_API_KEY"))
 
     context = "You are a chatbot. Introduce yourself and help the user."
     llm.add_context(context)

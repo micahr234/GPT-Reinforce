@@ -3,7 +3,7 @@ import Game
 from colorama import Fore, Back, Style
 
 if __name__ == '__main__':
-    llm = LLM.LLM(api_key="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")
+    llm = LLM.LLM(api_key=os.getenv("OPENAI_API_KEY"))
 
     context = ("Your task is to play a text based computer game. Find out how to obtain the "
                "highest reward by playing the game multiple times. Do NOT talk to the computer "
